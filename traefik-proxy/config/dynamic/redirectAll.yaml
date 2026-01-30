@@ -1,0 +1,18 @@
+http:
+  routers:
+    redirectAll:
+      entryPoints:
+        - https
+      rule: 'HostRegexp(`.+`)'
+      priority: 10
+      middlewares:
+        - catch-all
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: errorService
+
+

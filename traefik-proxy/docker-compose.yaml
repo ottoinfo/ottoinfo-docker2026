@@ -1,0 +1,50 @@
+# All Services in `include` are setup first
+include:
+  - addOns/error-pages/docker-compose.yaml
+  # - addOns/jaeger/docker-compose.yaml
+  - addOns/whoami/docker-compose.yaml
+
+services:
+  traefik:
+    image: traefik:latest # or traefik:v3.3 to pin a version
+    container_name: ${TRAEFIK_NAME}
+    hostname: ${TRAEFIK_NAME}
+    restart: unless-stopped
+    depends_on:
+      - error-pages
+      - whoami
+    env_file:
+      - ./.env
+      - ../.env
+    environment:
+      # Production ENV | Overrides
+      # - TRAEFIK_API_DASHBOARD=${TRAEFIK_API_DASHBOARD}
+      # - TRAEFIK_API_INSECURE=${TRAEFIK_API_INSECURE}
+      - CLOUDFLARE_DNS_EMAIL=${CLOUDFLARE_DNS_USERNAME_FILE:-$CLOUDFLARE_DNS_USERNAME}
+      - TRAEFIK_DASHBOARD_CREDENTIALS=${TRAEFIK_DASHBOARD_CREDENTIALS_FILE:-$TRAEFIK_DASHBOARD_CREDENTIALS}
+    security_opt:
+      - no-new-privileges:true # helps to increase security
+    networks:
+      traefik:
+        ipv4_address: ${TRAEFIK_IP4} # Static IP
+    ports:
+      - "${TRAEFIK_HTTP_PORT_FORWARD}:${TRAEFIK_HTTP_PORT}"
+      - "${TRAEFIK_HTTPS_PORT_FORWARD}:${TRAEFIK_HTTPS_PORT}"
+      - "${TRAEFIK_DASHBOARD_PORT_FORWARD}:${TRAEFIK_DASHBOARD_PORT}"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./config/dynamic/:/etc/traefik/dynamic/:ro
+      - ./certs/:/var/traefik/certs/:rw
+      # Logs
+      - traefik-logs:/var/log/traefik/:rw
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${TRAEFIK_SUB_DOMAIN}.orb.local
+      - dev.orbstack.http-port=${TRAEFIK_DASHBOARD_PORT}
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  traefik-logs:

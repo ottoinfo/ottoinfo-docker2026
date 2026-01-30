@@ -1,0 +1,22 @@
+http:
+  routers:
+    www:
+      entryPoints:
+        - https
+      rule: 'Host(`{{ env "SERVER_URL" }}`)'
+      priority: 20
+      middlewares:
+        - secured
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: wwwService
+
+  services:
+    wwwService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "UI_SERVICE_URL" }}'

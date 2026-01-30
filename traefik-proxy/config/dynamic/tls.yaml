@@ -1,0 +1,13 @@
+tls:
+  certificates:
+    - certFile: /var/traefik/certs/ottoinfo.local.crt
+      keyFile: /var/traefik/certs/ottoinfo.local.key
+
+# tls:
+#   certificates:
+#     - certFile: "/var/traefik/certs/ottoinfo.${CERT_LEVEL}.crt"
+#       keyFile: "/var/traefik/certs/ottoinfo.${CERT_LEVEL}.key"
+#       stores:
+#         - default
+#     # Note that since no store is defined,
+#     # the certificate below will be stored in the `default` store.

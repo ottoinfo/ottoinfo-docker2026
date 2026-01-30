@@ -1,0 +1,45 @@
+services:
+  ui:
+    build:
+      dockerfile: ${UI_DOCKERFILE}
+      context: ./
+      target: builder
+      args:
+        - IMAGE=${UI_IMAGE}
+        - TAG=${UI_IMAGE_VERSION}
+    container_name: ${UI_SERVICE_NAME}
+    hostname: ${UI_SERVICE_NAME}
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+    working_dir: "/data"
+    env_file:
+      - .env
+    environment:
+      # Production ENV | Overrides
+      - UI_SERVICE_NAME=${UI_SERVICE_NAME}
+      - UI_SERVICE_PORT=${UI_SERVICE_PORT}
+      - NODE_ENV=${NODE_ENV}
+      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN_FILE:-SENTRY_AUTH_TOKEN}
+    secrets:
+      - sentry_auth_token
+    volumes:
+      - ${UI_LOCAL_REPO}:/data # Copy Over Portfolio Repo
+      # OverWrite Packages and Specific Files
+      - ./node_modules:/data/node_modules
+      - ./scripts:/data/scripts
+      - ./scripts/.bashrc.txt:/root/.bashrc:ro # Create Custom BASHRC Aliases
+      # - .:/data:delegated # Any Files inside `frontendService` write over, but do NOT touch Original Files
+    ports:
+      - "${UI_SERVICE_PORT_FORWARD}:${UI_SERVICE_PORT}/tcp"
+    networks:
+      services:
+        ipv4_address: ${UI_IP4} # Static IP
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${UI_SERVICE_NAME}.orb.local
+    # Start Command
+    command: /bin/bash -c /data/scripts/nodeStart.sh
+
+volumes:
+  ui_data:
