@@ -1,0 +1,24 @@
+http:
+  routers:
+    dockhand:
+      entryPoints:
+        - https
+      rule: 'Host(`dockhand.{{ env "SERVER_URL" }}`)'
+      observability:
+        tracing: true
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: dockhandService
+
+  services:
+    dockhandService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "DOCKHAND_SERVICE_URL" }}'

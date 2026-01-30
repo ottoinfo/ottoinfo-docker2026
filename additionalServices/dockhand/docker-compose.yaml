@@ -1,0 +1,19 @@
+services:
+  dockhand:
+    image: fnsys/dockhand:latest
+    container_name: ${DOCKHAND_NAME}
+    hostname: ${DOCKHAND_NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    networks:
+      services:
+        ipv4_address: ${DOCKHAND_IP4} # Static IP
+    ports:
+      - "${DOCKHAND_HTTP_PORT_FORWARD}:${DOCKHAND_HTTP_PORT}/tcp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data:/app/data:rw
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${DOCKHAND_SUB_DOMAIN}.orb.local

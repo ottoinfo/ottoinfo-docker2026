@@ -1,0 +1,24 @@
+http:
+  routers:
+    jaeger:
+      entryPoints:
+        - https
+      rule: Host(`metrics.{{ env "SERVER_URL" }}`) && PathPrefix(`/jaeger`)
+      observability:
+        tracing: true
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: jaegerService
+
+  services:
+    jaegerService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "JAEGER_SERVICE_URL" }}'

@@ -1,0 +1,24 @@
+http:
+  routers:
+    prometheus:
+      entryPoints:
+        - https
+      rule: Host(`metrics.{{ env "SERVER_URL" }}`) && PathPrefix(`/prometheus`)
+      observability:
+        tracing: true
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: prometheusService
+
+  services:
+    prometheusService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "PROMETHEUS_SERVICE_URL" }}'

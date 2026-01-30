@@ -1,0 +1,23 @@
+http:
+  routers:
+    tools:
+      entryPoints:
+        - https
+      rule: 'Host(`tools.{{ env "SERVER_URL" }}`)'
+      observability:
+        tracing: true
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: toolsService
+
+  services:
+    toolsService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "IT_TOOLS_SERVICE_URL" }}'

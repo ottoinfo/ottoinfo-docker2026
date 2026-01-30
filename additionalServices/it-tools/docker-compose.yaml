@@ -1,0 +1,16 @@
+services:
+  it-tools:
+    image: "corentinth/it-tools:latest" # The Docker image to use.
+    container_name: ${IT_TOOLS_NAME}
+    hostname: ${IT_TOOLS_NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    networks:
+      services:
+        ipv4_address: ${IT_TOOLS_IP4} # Static IP
+    ports:
+      - "${IT_TOOLS_HTTP_PORT_FORWARD}:${IT_TOOLS_HTTP_PORT}/tcp"
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${IT_TOOLS_SUB_DOMAIN}.orb.local

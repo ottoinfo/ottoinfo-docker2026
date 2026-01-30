@@ -1,0 +1,62 @@
+# misc
+.DS_Store
+
+
+# Frontend Services | Copy of PACKAGES for DOCKER
+frontendServices/node_modules/*
+frontendServices/package-lock.json
+
+# Try Example - Don't Track New Files
+TryExample/*
+!TryExample/example.docker-compose.yaml
+!nginx.env
+!nginx.vars.env
+!README.md
+
+# Traefik Certs
+traefik-proxy/certs/*
+!traefik-proxy/certs/ottoinfo.local.crt
+!traefik-proxy/certs/ottoinfo.local.key
+
+# Traefik Routes - Not Ready
+traefik-proxy/config/dynamic/dozzle.yaml
+traefik-proxy/config/dynamic/grafana.yaml
+traefik-proxy/config/dynamic/obsidian.yaml
+traefik-proxy/config/dynamic/portainer.yaml
+traefik-proxy/config/dynamic/postgres.yaml
+
+# Docs - Not Ready
+docs/Backend.md
+# docs/ChangeLog.md
+# docs/Docker.md
+# docs/DockerHelp.md
+# docs/Frontend.md
+# docs/LocalSetup.md
+# docs/OrbStack.md
+# docs/Portainer.md
+docs/StartUp.md
+
+# Backend Services - Not Ready
+backendServices/
+
+# Docker Services & Volumes - Add Services to REPO
+additionalServices/checkmk
+additionalServices/checkmk/data/*
+# additionalServices/dockhand
+additionalServices/dockhand/data/*
+additionalServices/dozzle
+additionalServices/dozzle/data/*
+additionalServices/grafana
+additionalServices/grafana/data/*
+# additionalServices/it-tools
+additionalServices/it-tools/data/*
+additionalServices/obsidian
+additionalServices/obsidian/data/*
+additionalServices/portainer
+additionalServices/portainer/data/*
+additionalServices/uptime-kuma
+additionalServices/uptime-kuma/data/*
+
+# Docker Secrets
+secrets/*
+

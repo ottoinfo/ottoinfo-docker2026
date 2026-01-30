@@ -1,0 +1,24 @@
+http:
+  routers:
+    loki:
+      entryPoints:
+        - https
+      rule: Host(`metrics.{{ env "SERVER_URL" }}`) && PathPrefix(`/loki`)
+      observability:
+        tracing: true
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: lokiService
+
+  services:
+    lokiService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "LOKI_SERVICE_URL" }}'

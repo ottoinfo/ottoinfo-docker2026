@@ -1,0 +1,23 @@
+http:
+  routers:
+    traefik:
+      entryPoints:
+        - https
+      rule: 'Host(`traefik.{{ env "SERVER_URL" }}`)'
+      observability:
+        tracing: true
+      middlewares:
+        - secured-auth
+      tls:
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: traefikService
+
+  services:
+    traefikService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "TRAEFIK_SERVICE_URL" }}'

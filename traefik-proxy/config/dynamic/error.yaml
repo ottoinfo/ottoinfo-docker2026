@@ -1,0 +1,24 @@
+http:
+  routers:
+    error:
+      entryPoints:
+        - https
+      observability:
+        tracing: true
+      # use as "fallback" for any NON-registered services (with priority below normal)
+      rule: 'HostRegexp(`.+`)'
+      priority: 5
+      middlewares:
+        - error-pages
+      tls:
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: errorService
+
+  services:
+    errorService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "ERROR_SERVICE_URL" }}'

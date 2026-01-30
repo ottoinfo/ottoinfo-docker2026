@@ -1,0 +1,25 @@
+http:
+  routers:
+    grafana:
+      entryPoints:
+        - https
+      rule: 'Host(`metrics.{{ env "SERVER_URL" }}`)'
+      observability:
+        tracing: true
+      priority: 100
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: grafanaService
+
+  services:
+    grafanaService:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: '{{ env "GRAFANA_SERVICE_URL" }}'

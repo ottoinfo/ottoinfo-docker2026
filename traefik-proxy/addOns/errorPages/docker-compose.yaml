@@ -1,0 +1,17 @@
+services:
+  error-pages:
+    image: tarampampam/error-pages
+    container_name: ${ERROR_NAME}
+    hostname: ${ERROR_NAME}
+    restart: unless-stopped
+    environment:
+      - TEMPLATE_NAME=${ERROR_TEMPLATE}
+      - TZ=${TZ}
+    ports:
+      - "${ERROR_HTTP_PORT_FORWARD}:${ERROR_HTTP_PORT}"
+    networks:
+      traefik:
+        ipv4_address: ${ERROR_IP4} # Static IP
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${ERROR_SUB_DOMAIN}.orb.local

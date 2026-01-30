@@ -1,0 +1,20 @@
+services:
+  whoami:
+    image: traefik/whoami
+    container_name: ${WHOAMI_NAME}
+    hostname: ${WHOAMI_NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    networks:
+      traefik:
+        ipv4_address: ${WHOAMI_IP4} # Static IP
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${WHOAMI_SUB_DOMAIN}.orb.local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
