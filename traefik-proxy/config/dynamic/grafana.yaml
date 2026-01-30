@@ -1,0 +1,20 @@
+http:
+  routers:
+    grafana:
+      entryPoints:
+        - https
+      rule: 'Host(`grafana.{{ env "SERVER_URL" }}`)'
+      middlewares:
+        - secured-error
+      tls:
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: grafanaService
+
+  services:
+    grafanaService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "GRAFANA_SERVICE_URL" }}'

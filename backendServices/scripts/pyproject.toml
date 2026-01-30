@@ -1,0 +1,168 @@
+[tool.poetry]
+name = "platform-service-main"
+description = ""
+readme = "README.md"
+authors = []
+packages = [{ include = "instil/**/*.py" }]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.13"
+pydantic = "2.10.4"
+strawberry-graphql = { extras = ["debug-server"], version = "^0.258.0" }
+python-dotenv = "^1.0.1"
+django = "^5.1.4"
+psycopg2 = "^2.9.10"
+boto3 = "^1.35.93"
+uvicorn = "^0.34.0"
+gunicorn = "^23.0.0"
+icecream = "^2.1.3"
+python-jose = { extras = ["cryptography"], version = "^3.3.0" }
+pyjwt = "^2.10.1"
+mock = "^5.1.0"
+django-cors-headers = "^4.6.0"
+djangorestframework = "^3.15.2"
+mypy = "1.16.0"
+django-stubs = "5.2.0"
+python-dateutil = "^2.9.0.post0"
+types-python-dateutil = "^2.9.0.20241206"
+pytest-xdist = "^3.6.1"
+sqlparse = "^0.5.3"
+ddtrace = "^2.19.1"
+adrf = "^0.1.9"
+requests-mock = "^1.12.1"
+types-requests = "^2.32.0.20241016"
+pytest-timeout = "^2.3.1"
+django-structlog = "^8.1.0"
+black = "^24.10.0"
+pymongo = "^4.10.1"
+
+# patched version of graphql-core to work around issue where sync_to_async hangs intermittently
+graphql-core = { git = "https://github.com/instilus/graphql-core" }
+tqdm = "^4.67.1"
+types-tqdm = "^4.67.0.20241221"
+sendgrid = "^6.11.0"
+drf-pydantic = "^2.5.1"
+types-deprecated = "^1.2.15.20241117"
+pydantic-extra-types = "^2.10.2"
+phonenumbers = "^8.13.55"
+drf-spectacular = "^0.28.0"
+nh3 = "^0.2.21"
+email-validator = "^2.2.0"
+jinja2 = "^3.1.0"
+mcp = "1.2.0"
+deprecated = "^1.2.18"
+fastapi = "^0.119.0"
+
+[tool.poetry.group.temporary_onboarding_workflow.dependencies]
+# dependencies that are specifically required for the temporary onboarding scripts
+# see:
+#   instil/app/management/commands/upload_xlsx_to_s3_and_trigger_import.py
+#   instil/app/management/commands/import_subscriber_data_from_xlsx.py
+pandas = "^2.2.3"  # used to process data from excel sheet
+openpyxl = "^3.1.5"  # xcel parser for pandas
+pandas-stubs = "^2.2.3.241126"
+fsspec = "^2024.12.0"  # soft dependency for pandas to work with s3
+s3fs = "^2024.12.0"  # soft dependency for pandas to work with s3
+
+[tool.poetry.group.lint.dependencies]
+black = { extras = ['d'], version = "^24.10.0" }
+flake8 = "^7.1.1"
+bandit = { extras = ["toml"], version = "^1.8.0" }
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.4"
+pytest-asyncio = "^0.24.0"
+faker = "^19.13.0"
+gql = { extras = ["requests"], version = "^3.5.0" }
+pytest-django = "^4.9.0"
+freezegun = "^1.5.1"
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "^75.7.0"
+rich = "^13.9.4"
+
+[tool.poetry.group.docs]
+optional = false
+
+[tool.poetry.group.docs.dependencies]
+drf-spectacular = "^0.28.0"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "instil.site.settings"
+python_files = ["test_*.py", "*_test.py", "testing/python/*.py"]
+markers = [
+    "regression(ticket_id=None): marks a regression test for a specific bug"
+]
+asyncio_mode = "auto"
+
+[tool.bandit]
+exclude_dirs = ["**/*/tests"]
+
+[tool.bandit.assert_used]
+skips = ['**/*_test.py', '**/test_*.py', '**/conftest.py']
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+plugins = ["strawberry.ext.mypy_plugin", "mypy_django_plugin.main", "pydantic.mypy"]
+exclude = [
+    'tests/'
+]
+
+[[tool.mypy.overrides]]
+module = "icecream"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "mock"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "boto3"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.authentication"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.decorators"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.exceptions"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.permissions"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.request"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "rest_framework.response"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jose"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jose.utils"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "sendgrid"
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "instil.site.settings"

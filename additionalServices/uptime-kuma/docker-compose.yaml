@@ -1,0 +1,25 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma
+    container_name: ${UPTIME_KUMA_NAME}
+    hostname: ${UPTIME_KUMA_NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    networks:
+      services:
+        ipv4_address: ${UPTIME_KUMA_IP4} # Static IP
+    ports:
+      - "${UPTIME_KUMA_HTTP_PORT_FORWARD}:${UPTIME_KUMA_HTTP_PORT}/tcp"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/app/data
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${UPTIME_KUMA_SUB_DOMAIN}.orb.local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s

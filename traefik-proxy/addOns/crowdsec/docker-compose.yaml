@@ -1,0 +1,54 @@
+services:
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: ${CROWDSEC_NAME}
+    hostname: ${CROWDSEC_NAME}
+    restart: unless-stopped
+    ports:
+      - "${CROWDSEC_HTTP_PORT_FORWARD}:${CROWDSEC_HTTP_PORT}"
+    environment:
+      - TZ=${TZ}
+      - PGID="1000"
+      # - COLLECTIONS="crowdsecurity/traefik crowdsecurity/http-cve"
+    networks:
+      services:
+        ipv4_address: ${CROWDSEC_IP4} # Static IP
+    volumes:
+      # Persist configuration and database
+      - ./scripts:/home/scripts
+      - ./config/acquis.yaml:/etc/crowdsec/acquis.yaml # Updated logs path
+      # - ./config/appsec.yaml:/etc/crowdsec/acquis.d/appsec.yaml #
+      - crowdsec-config:/etc/crowdsec/
+      - crowdsec-data:/var/lib/crowdsec/data/
+      # Mount host logs for analysis (example: system logs)
+      - traefik-logs:/var/log/traefik:ro
+    healthcheck:
+      test: ["CMD", "cscli", "version"]
+    security_opt:
+      - no-new-privileges:true
+    command: /bin/bash -c ./data/scripts/start.sh
+
+  # # Add API Layer
+  bouncer-traefik:
+    image: docker.io/fbonalair/traefik-crowdsec-bouncer:latest
+    container_name: ${CROWDSEC_BOUNCER_NAME}
+    hostname: ${CROWDSEC_BOUNCER_NAME}
+    restart: unless-stopped
+    ports:
+      - "${CROWDSEC_BOUNCER_HTTP_PORT_FORWARD}:${CROWDSEC_BOUNCER_HTTP_PORT}"
+    environment:
+      - CROWDSEC_BOUNCER_API_KEY=${CROWDSEC_BOUNCER_API_KEY}
+      - CROWDSEC_AGENT_HOST=${CROWDSEC_IP4}:${CROWDSEC_HTTP_PORT}
+    networks:
+      services:
+        ipv4_address: ${CROWDSEC_BOUNCER_IP4} # Static IP
+    depends_on:
+      - crowdsec
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${CROWDSEC_SUB_DOMAIN}.orb.local
+
+volumes:
+  crowdsec-config:
+  crowdsec-data:
+  traefik-logs: # This will point to our traefik logs volume

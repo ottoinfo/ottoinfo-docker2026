@@ -1,0 +1,22 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: ${PORTAINER_NAME}
+    hostname: ${PORTAINER_NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+      - PORTAINER_PASSWORD=${PORTAINER_PASSWORD_FILE:-$PORTAINER_PASSWORD}
+    # secrets:
+    #   - portainer_password
+    networks:
+      services:
+        ipv4_address: ${PORTAINER_IP4} # Static IP
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data:/data:rw
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${PORTAINER_SUB_DOMAIN}.orb.local
+    # https://docs.portainer.io/advanced/cli
+    command: --admin-password "${PORTAINER_PASSWORD}"

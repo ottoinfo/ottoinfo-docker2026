@@ -1,0 +1,36 @@
+# Declare the build arguments
+
+# Builder
+FROM python:3.13 as builder
+
+# # Create a non-root user for security purposes
+# # Note that poetry needs access to a home dir to create its default virtualenv cache
+RUN useradd -r -m -d /home/appuser appuser
+
+# # Set working directory
+WORKDIR /app
+
+# # Copy only the dependency definition files first - useful for caching layers
+# # If these files didn't change we won't have to install dependencies again
+COPY ./scripts/pyproject.toml ./scripts/poetry.lock /app/
+
+# # Install poetry as root
+RUN pip install poetry==1.8.5
+
+# # Switch to the non-root user
+USER appuser
+
+RUN poetry lock
+
+# # Install dependencies with poetry
+RUN poetry install --sync --with docs
+
+# # Copy the rest of the application files - useful for caching layers
+# COPY . /app
+
+# # Expose the application port
+EXPOSE 8000
+ENV PORT 8000
+
+# # Run the application through non-root user
+CMD poetry run gunicorn instil.site.asgi:application -k uvicorn.workers.UvicornWorker

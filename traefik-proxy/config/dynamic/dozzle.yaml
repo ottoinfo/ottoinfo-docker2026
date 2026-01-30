@@ -1,0 +1,21 @@
+http:
+  routers:
+    dozzle:
+      entryPoints:
+        - https
+      rule: 'Host(`dozzle.{{ env "SERVER_URL" }}`)'
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: dozzleService
+
+  services:
+    dozzleService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "DOZZLE_SERVICE_URL" }}'

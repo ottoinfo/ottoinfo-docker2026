@@ -1,0 +1,22 @@
+services:
+  obsidian:
+    image: lscr.io/linuxserver/obsidian:latest
+    container_name: ${OBSIDIAN_NAME}
+    hostname: ${OBSIDIAN_NAME}
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    networks:
+      services:
+        ipv4_address: ${OBSIDIAN_IP4} # Static IP
+    ports:
+      - "${OBSIDIAN_HTTP_PORT_FORWARD}:${OBSIDIAN_HTTP_PORT}/tcp"
+      - "${OBSIDIAN_HTTPS_PORT_FORWARD}:${OBSIDIAN_HTTPS_PORT}/tcp"
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${OBSIDIAN_SUB_DOMAIN}.orb.local
+    volumes:
+      - ./data/config:/config
+    shm_size: "1gb"

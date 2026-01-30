@@ -1,0 +1,19 @@
+services:
+  adminer:
+    container_name: ${ADMINER_SERVICE_NAME}
+    hostname: ${ADMINER_SERVICE_NAME}
+    image: adminer
+    restart: always
+    environment:
+    - TZ=${TZ}
+    networks:
+      services:
+        ipv4_address: ${ADMINER_SERVICE_IP4} # Static IP
+    ports:
+    - "${ADMINER_SERVICE_PORT_FORWARD}:${ADMINER_SERVICE_PORT}"
+    labels:
+    # Orb Stack
+    - dev.orbstack.domains=${ADMINER_SUB_DOMAIN}.ottoinfo.local
+    - dev.orbstack.http-port=${ADMINER_SERVICE_PORT}
+    #  Traefik
+    - traefik.enable=true
