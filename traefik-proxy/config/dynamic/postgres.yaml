@@ -1,0 +1,16 @@
+# http:
+#   routers:
+#     postgres:
+#       entryPoints:
+#       - https
+#       rule: "Host(`postgres.${SERVER_NAME}.${TOP_LEVEL_DOMAIN}`)"
+#       middlewares:
+#       - secured
+#       observability:
+#         tracing: true
+#       tls:
+#         domains:
+#         - main: "${SERVER_NAME}.${TOP_LEVEL_DOMAIN}"
+#           sans:
+#           - "*.${SERVER_NAME}.${TOP_LEVEL_DOMAIN}"
+#       service: db-docker@docker

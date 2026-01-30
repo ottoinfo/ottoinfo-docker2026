@@ -1,0 +1,65 @@
+# Usage
+#   Start:          docker compose up
+#   Stop:           docker compose down
+#   Destroy:        docker compose down -v
+
+include:
+  # APPS
+  - path: ./frontendServices/docker-compose.yaml
+  # - backendServices/docker-compose.yaml
+  # # NETWORK
+  - path: ./traefik-proxy/docker-compose.yaml # Reverse Proxy
+  - path: ./additionalServices/grafana/docker-compose.yaml # Reverse Proxy
+  # # ADDITIONAL
+  - path: ./additionalServices/checkmk/docker-compose.yaml
+  - path: ./additionalServices/dozzle/docker-compose.yaml
+  - path: ./additionalServices/portainer/docker-compose.yaml
+  - path: ./additionalServices/dockhand/docker-compose.yaml
+  - path: ./additionalServices/it-tools/docker-compose.yaml
+  - path: ./additionalServices/obsidian/docker-compose.yaml
+  - path: ./additionalServices/uptime-kuma/docker-compose.yaml
+
+# Create/Setup Networks
+networks:
+  # If no other networks are defined on the service, it will be in "default" network by default
+  traefik:
+    name: ${TRAEFIK_NETWORK_NAME}
+    driver: ${TRAEFIK_NETWORK_DRIVER}
+    ipam:
+      config:
+        - subnet: ${TRAEFIK_NETWORK_SUBNET}
+  services:
+    name: ${SERVICES_NETWORK_NAME}
+    driver: ${SERVICES_NETWORK_DRIVER}
+    ipam:
+      config:
+        - subnet: ${SERVICES_NETWORK_SUBNET}
+  crowdsec:
+    driver: bridge
+
+# Secrets for Production
+secrets:
+  cloudflare_dns_api_token:
+    file: ./secrets/cloudflare_dns_api_token.txt
+  cloudflare_dns_password:
+    file: ./secrets/cloudflare_dns_password.txt
+  cloudflare_dns_username:
+    file: ./secrets/cloudflare_dns_username.txt
+  crowdsec_api_password:
+    file: ./secrets/crowdsec_api_password.txt
+  crowdsec_api_username:
+    file: ./secrets/crowdsec_api_username.txt
+  crowdsec_bouncer_password:
+    file: ./secrets/crowdsec_bouncer_password.txt
+  db_password:
+    file: ./secrets/db_password.txt
+  db_username:
+    file: ./secrets/db_username.txt
+  google_api:
+    file: ./secrets/google_api.txt
+  portainer_password:
+    file: ./secrets/portainer_password.txt
+  sentry_auth_token:
+    file: ./secrets/sentry_auth_token.txt
+  traefik_dashboard_credentials:
+    file: ./secrets/traefik_dashboard_credentials.txt

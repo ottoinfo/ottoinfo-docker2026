@@ -1,0 +1,33 @@
+# misc
+.DS_Store
+
+
+# Frontend Services | Copy of PACKAGES for DOCKER
+frontendServices/node_modules/*
+frontendServices/package-lock.json
+
+# Try Example - Don't Track New Files
+TryExample/*
+!TryExample/example.docker-compose.yaml
+!nginx.env
+!nginx.vars.env
+!README.md
+
+# Traefik Certs
+traefik-proxy/certs/*
+!traefik-proxy/certs/ottoinfo.local.crt
+!traefik-proxy/certs/ottoinfo.local.key
+
+# Docker Volumes
+additionalServices/checkmk/data/*
+additionalServices/dockhand/data/*
+additionalServices/dozzle/data/*
+additionalServices/grafana/data/*
+additionalServices/it-tools/data/*
+additionalServices/obsidian/data/*
+additionalServices/portainer/data/*
+additionalServices/uptime-kuma/data/*
+
+# Docker Secrets
+secrets/*
+

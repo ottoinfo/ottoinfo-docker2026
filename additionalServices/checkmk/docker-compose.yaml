@@ -1,0 +1,29 @@
+services:
+  checkmk:
+    image: "checkmk/check-mk-raw"
+    platform: linux/amd64 # Force AMD64 Platform - enable emulation
+    container_name: ${CMK_NAME}
+    hostname: ${CMK_NAME}
+    restart: unless-stopped
+    environment:
+      - CMK_PASSWORD=${CMK_PASSWORD}
+      - TZ=${TZ}
+      - CMK_SITE_ID=${CMK_SITE_ID}
+      - CMK_LIVESTATUS_TCP=${CMK_LIVESTATUS_TCP}
+    volumes:
+      - monitoring:/omd/sites
+      - ./plugins:/usr/lib/check_mk_agent/plugins
+    tmpfs:
+      - /opt/omd/sites/cmk/tmp:uid=1000,gid=1000
+    ports:
+      - 5080:5000
+      - ${CMK_HTTP_PORT_FORWARD}:${CMK_HTTP_PORT}
+    networks:
+      services:
+        ipv4_address: ${CMK_IP4} # Static IP
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${CMK_SUB_DOMAIN}.orb.local
+      - dev.orbstack.http-port=${CMK_HTTP_PORT}
+volumes:
+  monitoring:

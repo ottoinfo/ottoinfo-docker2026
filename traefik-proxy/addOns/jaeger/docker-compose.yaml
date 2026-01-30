@@ -1,0 +1,22 @@
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: ${NAME}
+    hostname: ${NAME}
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    networks:
+      traefik:
+        ipv4_address: ${IP4} # Static IP
+    ports:
+      - "6831:6831/udp" # Agent Thrift Compact
+      - "14268:14268" # Collector HTTP
+      - "16686:16686" # UI HTTP
+      - "5778:5778" # Agent HTTP sampling
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${SUB_DOMAIN}.local
+      - dev.orbstack.http-port=${HTTP_PORT}
+      #  Traefik
+      - traefik.enable=true

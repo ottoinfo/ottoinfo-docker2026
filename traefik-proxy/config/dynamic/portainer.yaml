@@ -1,0 +1,21 @@
+http:
+  routers:
+    portainer:
+      entryPoints:
+        - https
+      rule: 'Host(`portainer.{{ env "SERVER_URL" }}`)'
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: portainerService
+
+  services:
+    portainerService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "PORTAINER_SERVICE_URL" }}'

@@ -1,0 +1,54 @@
+# Services
+include:
+  - docker-service-adminer.yaml
+  - docker-service-postgres.yaml
+
+services:
+  api:
+    # image: ${MAIN_IMAGE_NAME}:${MAIN_IMAGE_VERSION}
+    build:
+      context: ./
+      target: builder
+      dockerfile: Dockerfile.local
+      args:
+        BUILD_ENV: production
+        APP_VERSION: 1.0.0
+        IMAGE: "${MAIN_IMAGE_NAME}"
+        TAG: "${MAIN_IMAGE_VERSION}"
+        USER: "${APP_USER}"
+    container_name: ${MAIN_SERVICE_NAME}
+    hostname: ${MAIN_SERVICE_NAME}
+    working_dir: ${WORKING_DIR}
+    user: ${APP_USER}
+    restart: unless-stopped
+    networks:
+      services:
+        ipv4_address: ${MAIN_SERVICE_IP4} # Static IP
+    ports:
+      - "${MAIN_SERVICE_PORT_FORWARD}:${MAIN_SERVICE_PORT}"
+    depends_on:
+      - postgres
+      - adminer
+    environment:
+      - APP_USER=${APP_USER}
+      - WORKING_DIR=${WORKING_DIR}
+      - TZ=${TZ}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+      - AWS_COGNITO_ENABLED=${AWS_COGNITO_ENABLED}
+      - SEND_EMAIL=${SEND_EMAIL}
+      - DEPLOY_ENV=${DEPLOY_ENV}
+    volumes:
+      - ${LOCAL_REPO}:/app # Copy Over Repo
+      - ./scripts/poetry.lock:/app/poetry.lock:rw # Do we need a CUSTOM poetry.lock???
+      - ./scripts/pyproject.toml:/app/pyproject.toml:rw # Do we need a CUSTOM poetry.lock???
+      - ./scripts/dump_migration_databases.sh:/app/dump_migration_databases.sh:ro # Do we need a CUSTOM poetry.lock???
+      - ./scripts:/app/scripts
+      - ./scripts/.bashrc.txt:/root/.bashrc:ro # Create Custom BASHRC Aliases
+    labels:
+      # Orb Stack
+      - dev.orbstack.domains=${MAIN_SUB_DOMAIN}.ottoinfo.local
+      # - dev.orbstack.http-port=${MAIN_SERVICE_PORT}
+    # Start Command
+    # entrypoint: "/app/scripts/start.sh"
+    command: bash -c "poetry run python manage.py migrate && poetry run gunicorn instil.site.asgi:application -k uvicorn.workers.UvicornWorker"

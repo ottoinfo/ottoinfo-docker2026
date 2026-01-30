@@ -1,0 +1,99 @@
+# Traefik Dashboard
+# http:
+#   routers:
+#     traefik:
+#       entrypoints: https
+#       rule: "Host(`dashboard.${SERVER_NAME}.${TOP_LEVEL_DOMAIN}`),Host(`dashboard.docker.localhost`)"
+#       service: "api@internal"
+#       middlewares:
+#       - secured-auth
+#       # tls:
+#       #   certresolver: "{{ env \"TLS_CERT_RESOLVER\" }}"
+#       #   domains:
+#       #   - main: "{{ env \"SERVER_NAME\" }}.{{ env \"TOP_LEVEL_DOMAIN\" }}"
+#       #     sans:
+#       #     - "*.{{ env \"SERVER_NAME\" }}.{{ env \"TOP_LEVEL_DOMAIN\" }}"
+#   services:
+#     dashboardService:
+#       loadBalancer:
+#         servers:
+#           url: https://traefik
+#           port: 443
+#         passHostHeader: true
+
+# Global
+api:
+  dashboard: true
+  insecure: true
+
+docker:
+  network: traefik
+
+# tcp:
+#   routers:
+#     passeverything:
+#       rule: HostSNI(`*`)
+#       entrypoints: https
+#       service: front
+#       tls: false
+#   services:
+#     front:
+#       loadBalancer:
+#         servers:
+#         - address: :443
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+entryPoints:
+  http:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: https
+          scheme: https
+          permanent: true
+  https:
+    address: ":443"
+
+serversTransport:
+  insecureSkipVerify: true
+
+# Logging - DEBUG, PANIC, FATAL, ERROR (default), WARN, INFO
+log:
+  level: DEBUG
+  filePath: "/var/log/traefik/traefik.log"
+#   format: json
+accessLog:
+  filePath: "/var/log/traefik/access.log"
+# maxBackups: 3
+
+
+# Metrics - Prometheus, Datadog, InfluxDB, StatsD, OpenTelemetry
+metrics:
+  prometheus:
+    buckets:
+    - 0.1
+    - 0.3
+    - 1.2
+    - 5.0
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: traefik
+  file:
+    directory: /etc/traefik/dynamic/
+    watch: true
+
+# tracing:
+#   # serviceName: traefik
+#   # jaeger:
+#   #   # samplingServerURL: "http://jaeger-agent:5778/sampling" # Adjust if your Jaeger agent is elsewhere
+#   #   samplingType: const # or probabilistic, rateLimiting
+#   #   samplingParam: 1.0 # for const, 1.0 means sample all
+#   otlp:
+#     http:
+#       endpoint: http://jaeger:4318/v1/traces

@@ -1,0 +1,21 @@
+http:
+  routers:
+    obsidian:
+      entryPoints:
+        - https
+      rule: 'Host(`obsidian.{{ env "SERVER_URL" }}`)'
+      middlewares:
+        - secured-error
+      tls:
+        # certresolver: "{{ env "TLS_CERT_RESOLVER" }}"
+        domains:
+        - main: '{{ env "SERVER_URL" }}'
+          sans:
+          - '*.{{ env "SERVER_URL" }}'
+      service: obsidianService
+
+  services:
+    obsidianService:
+      loadBalancer:
+        servers:
+          - url: '{{ env "OBSIDIAN_SERVICE_URL" }}'
