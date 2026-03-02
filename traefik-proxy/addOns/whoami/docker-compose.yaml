@@ -7,13 +7,12 @@ services:
     environment:
       - TZ=${TZ}
     networks:
-      traefik:
-        ipv4_address: ${WHOAMI_IP4} # Static IP
+      - ottoinfo
     labels:
       # Orb Stack
       - dev.orbstack.domains=${WHOAMI_SUB_DOMAIN}.orb.local
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
+      test: ["CMD", "/curl", "--fail", "http://localhost/health"]
       interval: 30s
       timeout: 10s
       retries: 3

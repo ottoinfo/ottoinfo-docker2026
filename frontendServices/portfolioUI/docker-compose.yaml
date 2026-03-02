@@ -15,37 +15,49 @@ services:
     working_dir: "/data"
     env_file:
       - .env
+      # Optional Overrides
+      - path: ../../.env
+        required: false
     environment:
       # Production ENV | Overrides
       - UI_SERVICE_NAME=${UI_SERVICE_NAME}
       - UI_SERVICE_PORT=${UI_SERVICE_PORT}
+      # Override Defaults
+      - NODEMON=${NODEMON:-false}
+      - NODE_DEBUG=${NODE_DEBUG:-false}
+      - NODE_ENV=${NODE_ENV:-development}
+      - NODE_DOMAIN=${DOMAIN}
+      - SITE_URL=${SITE_URL}
+      - COOKIE_DOMAIN=${COOKIE_DOMAIN}
+      - COOKIE_MAX_AGE=${COOKIE_MAX_AGE}
+      - VISITOR_COOKIE_NAME=${VISITOR_COOKIE_NAME}
       - NODE_ENV=${NODE_ENV}
-      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN_FILE:-SENTRY_AUTH_TOKEN}
-    secrets:
-      - sentry_auth_token
     volumes:
       - ${UI_LOCAL_REPO}:/data # Copy Over Portfolio Repo
       # OverWrite Packages and Specific Files
-      - ./node_modules:/data/node_modules
+      - ./data/node_modules:/data/node_modules:rw
+      # - ./data/yarn.lock:/data/yarn.lock:rw
       - ./scripts:/data/scripts
       - ./scripts/.bashrc.txt:/root/.bashrc:ro # Create Custom BASHRC Aliases
       # - .:/data:delegated # Any Files inside `frontendService` write over, but do NOT touch Original Files
     ports:
       - "${UI_SERVICE_PORT_FORWARD}:${UI_SERVICE_PORT}/tcp"
     networks:
-      services:
-        ipv4_address: ${UI_IP4} # Static IP
+      - ottoinfo
     labels:
       # Orb Stack
       - dev.orbstack.domains=${UI_SERVICE_NAME}.orb.local
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
+    # healthcheck:
+    #   test:
+    #     [
+    #       "CMD",
+    #       "node",
+    #       "-e",
+    #       "require('http').get('http://localhost:${UI_SERVICE_PORT}', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))",
+    #     ]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 15s
     # Start Command
-    command: /bin/bash -c /data/scripts/nodeStart.sh
-
-volumes:
-  ui_data:
+    command: ["/bin/bash", "-c", "/data/scripts/nodeStart.sh"]

@@ -20,20 +20,8 @@ certificatesResolvers:
         - "1.0.0.1:53"
 
 docker:
-  network: traefik
+  network: '{{ env "OTTOINFO_NETWORK_NAME" }}'
 
-# tcp:
-#   routers:
-#     passeverything:
-#       rule: HostSNI(`*`)
-#       entrypoints: https
-#       service: front
-#       tls: false
-#   services:
-#     front:
-#       loadBalancer:
-#         servers:
-#         - address: :443
 global:
   checkNewVersion: false
   sendAnonymousUsage: false
@@ -65,37 +53,3 @@ accessLog:
   filePath: "/var/log/traefik/access.log"
   format: json
 maxBackups: 3
-
-
-# Metrics - Prometheus, Datadog, InfluxDB, StatsD, OpenTelemetry
-# metrics:
-#   prometheus:
-#     buckets:
-#     - 0.1
-#     - 0.3
-#     - 1.2
-#     - 5.0
-metrics:
-  otlp:
-    http:
-      endpoint: '{{ env "PROMETHEUS_SERVICE_URL" }}'
-
-providers:
-  docker:
-    endpoint: "unix:///var/run/docker.sock"
-    exposedByDefault: false
-    network: traefik
-  file:
-    directory: /etc/traefik/dynamic/
-    watch: true
-
-tracing:
-  otlp:
-    http:
-      endpoint: '{{ env "JAEGER_SERVICE_URL" }}'
-  # serviceName: traefik
-  # jaeger:
-  #   # samplingServerURL: "http://jaeger-agent:5778/sampling" # Adjust if your Jaeger agent is elsewhere
-  #   samplingType: const # or probabilistic, rateLimiting
-  #   samplingParam: 1.0 # for const, 1.0 means sample all
-

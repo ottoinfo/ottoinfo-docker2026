@@ -10,8 +10,13 @@ services:
     ports:
       - "${ERROR_HTTP_PORT_FORWARD}:${ERROR_HTTP_PORT}"
     networks:
-      traefik:
-        ipv4_address: ${ERROR_IP4} # Static IP
+      - ottoinfo
     labels:
       # Orb Stack
       - dev.orbstack.domains=${ERROR_SUB_DOMAIN}.orb.local
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
